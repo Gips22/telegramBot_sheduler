@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "telegrambot-sheduler"
+version = "0.1.0"
+description = ""
+authors = ["me"]
+readme = "README.md"
+packages = [{include = "telegrambot_sheduler"}]
+
+[tool.poetry.dependencies]
+python = "3.11"
+aiogram = "^2.25.1"
+python-dotenv = "^0.21.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

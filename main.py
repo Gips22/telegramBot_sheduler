@@ -1,8 +1,6 @@
 from aiogram import Bot, Dispatcher, executor, types
 from config import TELEGRAM_BOT_TOKEN
 
-# from mymodule import my_function
-
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 dp = Dispatcher(bot)
 
@@ -11,7 +9,7 @@ dp = Dispatcher(bot)
 async def send_welcome(message: types.Message):
     """Отправляет приветственное сообщение и помощь по боту"""
     await message.answer(
-        "Привет! Я бот, который может помочь тебе сделать что-то полезное.\n"
+        f"Привет, {message.from_user.username} c id {message.from_user.id}! Я бот, который может помочь тебе сделать что-то полезное.\n"
         "Напиши мне: \n \n"
         "/add, чтобы добавить задачу. \n"
         "/complete, номер задачи, завершить задачу по ее идентификатору. \n"
