@@ -4,7 +4,9 @@ from exeptions import NotCorrectDateTime
 import db
 from worker import app_celery
 from bot import bot
+import redis
 
+r = redis.Redis(host="127.0.0.1", port=6379)
 
 class Task(NamedTuple):
     id: Optional[int]
@@ -35,6 +37,7 @@ def _parse_message(raw_message: str) -> Message:
 async def add_task(raw_message: str, chat_id):
     parsed_message = _parse_message(raw_message)
     cursor = db.get_cursor()
+    chat_id = chat_id
     try:
         cursor.execute(
             f"insert into task(task_name, reminder_time) "
@@ -47,11 +50,11 @@ async def add_task(raw_message: str, chat_id):
 
     message = "Задача добавлена в планировщик!"
     await bot.send_message(text=message, chat_id=chat_id)
-    create_notification_to_celery(parsed_message.task_text, parsed_message.data_time)
+    create_notification_to_celery(parsed_message.task_text, chat_id)
 
 
-def create_notification_to_celery(text, data_obj):
-    app_celery.send_task('task_todo.add', args=[text], eta=data_obj)
+def create_notification_to_celery(text, chat_id):
+    app_celery.send_task('tasks.add', args=[text, chat_id], countdown=10)
 
 
 def delete_task(row_id: int) -> None:
