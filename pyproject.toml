@@ -10,6 +10,8 @@ packages = [{include = "telegrambot_sheduler"}]
 python = "3.11"
 aiogram = "^2.25.1"
 python-dotenv = "^0.21.1"
+celery = "^5.2.7"
+redis = "^4.5.1"
 
 
 [build-system]

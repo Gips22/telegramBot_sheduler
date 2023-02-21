@@ -1,10 +1,8 @@
-from aiogram import Bot, Dispatcher, executor, types
-from config import TELEGRAM_BOT_TOKEN
+from aiogram import types
+from bot import dp
+from aiogram import executor
 
 import sheduler
-
-bot = Bot(token=TELEGRAM_BOT_TOKEN)
-dp = Dispatcher(bot)
 
 
 @dp.message_handler(commands=["start", "help"])
@@ -20,10 +18,12 @@ async def send_welcome(message: types.Message):
         "/del, номер задачи, чтобы удалить задачу по ее идентификатору.")
 
 
-@dp.message_handler(commands=["add"])
+@dp.message_handler()
 async def add_task(message: types.Message):
     """Добавляет задачу в планировщик"""
-    # result = my_function()
+    chat_id = message.chat.id
+    await sheduler.add_task(message.text, chat_id)
+
     await message.answer(f"Результат: ....")
 
 
@@ -65,3 +65,7 @@ async def del_all_tasks(message: types.Message):
 @dp.message_handler(commands=["month_stat"])
 async def get_month_stat(message: types.Message):
     await message.answer("За последний месяц вы поставили n задач, из них выполнили m задач")
+
+
+if __name__ == "__main__":
+    executor.start_polling(dp, skip_updates=True)

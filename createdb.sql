@@ -2,7 +2,8 @@ create table if not exists task (
         id integer primary key autoincrement,
         task_name varchar(500),
         completed boolean default false,
-        created datetime default current_timestamp,
+        created_time datetime default current_timestamp,
+        reminder_time datetime,
         user_task integer,
         foreign key(user_task) references person(id)
     );

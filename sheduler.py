@@ -2,6 +2,8 @@ from typing import List, NamedTuple, Optional
 from datetime import datetime
 from exeptions import NotCorrectDateTime
 import db
+from worker import app_celery
+from bot import bot
 
 
 class Task(NamedTuple):
@@ -22,20 +24,34 @@ def _parse_message(raw_message: str) -> Message:
         if ':' in word and len(word) == 5:
             time_str = word
         elif '.' in word and len(word) == 10:
-            try:
-                datetime.strptime(word, '%d.%m.%Y')
-                date_str = word
-            except ValueError:
-                pass
+            date_str = word
     if not time_str or not date_str:
         raise NotCorrectDateTime
-
+    data_obj = datetime.strptime(date_str + " " + time_str, "%d.%m.%Y %H:%M")
     task_text = ' '.join(words[:-2])
-    return Message(task_text=task_text, data_time=???????????)
+    return Message(task_text=task_text, data_time=data_obj)
 
 
-def add_task(raw_message: str) -> Task:
-    pass
+async def add_task(raw_message: str, chat_id):
+    parsed_message = _parse_message(raw_message)
+    cursor = db.get_cursor()
+    try:
+        cursor.execute(
+            f"insert into task(task_name, reminder_time) "
+            f"values "
+            f"('{parsed_message.task_text}', '{parsed_message.data_time}')"
+        )
+        db.connection.commit()
+    except Exception as ex:
+        print(ex)
+
+    message = "Задача добавлена в планировщик!"
+    await bot.send_message(text=message, chat_id=chat_id)
+    create_notification_to_celery(parsed_message.task_text, parsed_message.data_time)
+
+
+def create_notification_to_celery(text, data_obj):
+    app_celery.send_task('task_todo.add', args=[text], eta=data_obj)
 
 
 def delete_task(row_id: int) -> None:
