@@ -24,7 +24,7 @@ async def add_task(message: types.Message):
     chat_id = message.chat.id
     await sheduler.add_task(message.text, chat_id)
 
-    await message.answer(f"Результат: ....")
+    # await message.answer(f"Результат: ....")
 
 
 @dp.message_handler(commands=["complete"])

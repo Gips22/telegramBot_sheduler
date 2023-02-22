@@ -5,6 +5,7 @@ import db
 from worker import app_celery
 from bot import bot
 import redis
+from tasks import send_todo_message
 
 r = redis.Redis(host="127.0.0.1", port=6379)
 
@@ -50,11 +51,8 @@ async def add_task(raw_message: str, chat_id):
 
     message = "Задача добавлена в планировщик!"
     await bot.send_message(text=message, chat_id=chat_id)
-    create_notification_to_celery(parsed_message.task_text, chat_id)
+    send_todo_message.apply_async(args=[parsed_message.task_text, chat_id], countdown=5)
 
-
-def create_notification_to_celery(text, chat_id):
-    app_celery.send_task('tasks.add', args=[text, chat_id], countdown=10)
 
 
 def delete_task(row_id: int) -> None:

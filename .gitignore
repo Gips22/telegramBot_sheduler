@@ -10,3 +10,6 @@ db.sqlite3
 .ruff_cache
 /venv
 ./venv
+debug.log
+tasks.db
+tasks.py

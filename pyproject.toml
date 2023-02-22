@@ -12,6 +12,8 @@ aiogram = "^2.25.1"
 python-dotenv = "^0.21.1"
 celery = "^5.2.7"
 redis = "^4.5.1"
+flower = "^1.2.0"
+loguru = "^0.6.0"
 
 
 [build-system]
