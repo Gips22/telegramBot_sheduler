@@ -2,7 +2,7 @@ from typing import List, NamedTuple, Optional
 from datetime import datetime
 from exeptions import NotCorrectDateTime
 import db
-from worker import app_celery
+# from worker import app_celery
 from bot import bot
 import redis
 from tasks import create_celery_task_send_message, set_beat_shedule
