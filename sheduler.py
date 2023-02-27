@@ -2,12 +2,12 @@ from typing import List, NamedTuple, Optional
 from datetime import datetime
 from exeptions import NotCorrectDateTime
 import db
-# from worker import app_celery
 from bot import bot
 import redis
-from tasks import create_celery_task_send_message, set_beat_shedule
+from tasks import create_celery_task_send_message
 
 r = redis.Redis(host="127.0.0.1", port=6379)
+
 
 class Task(NamedTuple):
     id: Optional[int]
@@ -51,9 +51,7 @@ async def add_task(raw_message: str, chat_id):
 
     message = "Задача добавлена в планировщик!"
     await bot.send_message(text=message, chat_id=chat_id)
-    create_celery_task_send_message.apply_async(args=[parsed_message.task_text, chat_id], countdown=5)
-    set_beat_shedule(chat_id)
-    # check_overdue_tasks.apply_async(args=[chat_id])
+    create_celery_task_send_message.apply_async(args=[parsed_message.task_text, chat_id], eta=parsed_message.data_time)
 
 
 

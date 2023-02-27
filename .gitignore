@@ -13,3 +13,5 @@ db.sqlite3
 debug.log
 tasks.db
 tasks.py
+celerybeat-schedule
+celerybeat-schedule.db
