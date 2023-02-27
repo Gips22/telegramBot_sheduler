@@ -8,7 +8,7 @@ import asyncio
 import datetime
 import db
 from celery.schedules import crontab
-
+from config import TELEGRAM_ACCESS_ID
 
 logger.add("debug.log", format="{time} {level} {message}", level="DEBUG", rotation="10 MB")
 app_celery = Celery('tasks', broker='redis://127.0.0.1:6379/0', include=['tasks'])
@@ -25,7 +25,7 @@ async def send_notification_message(text, chat_id):
     await bot.send_message(chat_id=chat_id, text=message)
 
 
-@app_celery.task(name='tasks.ppp')
+@app_celery.task(name='tasks.check_overdue_tasks')
 def check_overdue_tasks(chat_id):
     logger.info("Задача по поиску незавершенных тасков и отправки уведомления запущена...")
     now = datetime.datetime.now()
@@ -33,13 +33,14 @@ def check_overdue_tasks(chat_id):
     cursor.execute(f"SELECT * FROM task WHERE completed=false AND reminder_time <= '{now}'")
     overdue_tasks = cursor.fetchall()
     if overdue_tasks:
-        message = f"У вас {len(overdue_tasks)} просроченных задач:\n\n"
+        message = f"Количество просроченных задач у вас: {len(overdue_tasks)}\n\n"
         for task in overdue_tasks:
-            message += f"{task[1]}\n"
+            message += f"id={task[0]}. Задача: {task[1]}\n"
         asyncio.run(send_overdue_notification_message(message, chat_id))
     else:
         message = f"У вас нет просроченных задач. Ура!"
         asyncio.run(send_overdue_notification_message(message, chat_id))
+
 
 async def send_overdue_notification_message(text, chat_id):
     message = text
@@ -48,9 +49,9 @@ async def send_overdue_notification_message(text, chat_id):
 
 app_celery.conf.beat_schedule = {
     'check_overdue_tasks': {
-        'task': 'tasks.ppp',
-        'schedule': crontab(hour=10, minute=43),
-        'args': (68968821,)
+        'task': 'tasks.check_overdue_tasks',
+        'schedule': crontab(hour=16, minute=47),
+        'args': (TELEGRAM_ACCESS_ID, )
     },
 }
 

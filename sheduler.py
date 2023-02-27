@@ -37,6 +37,7 @@ def _parse_message(raw_message: str) -> Message:
 
 async def add_task(raw_message: str, chat_id):
     parsed_message = _parse_message(raw_message)
+    await _check_datatime_is_correct(parsed_message.data_time, chat_id)
     cursor = db.get_cursor()
     chat_id = chat_id
     try:
@@ -54,6 +55,11 @@ async def add_task(raw_message: str, chat_id):
     create_celery_task_send_message.apply_async(args=[parsed_message.task_text, chat_id], eta=parsed_message.data_time)
 
 
+async def _check_datatime_is_correct(datatime, chat_id):
+    if datatime < datetime.now():
+        await bot.send_message(text="Введеная дата задачи некорректная (меньше текущей).", chat_id=chat_id)
+        raise NotCorrectDateTime
+
 
 def delete_task(row_id: int) -> None:
     """Удаляет задачу по идентификатору"""
@@ -63,26 +69,44 @@ def delete_task(row_id: int) -> None:
 def delete_all_tasks():
     cursor = db.get_cursor()
     cursor.execute(
-        "delete from task"
+        "delete from task;"
     )
+    db.connection.commit()
 
 
 def show_current_task_list():
-    pass
+    cursor = db.get_cursor()
+    cursor.execute("SELECT * FROM task WHERE completed IS 0")
+    data = cursor.fetchall()
+    all_tasks = [Task(id=row[0], task_name=row[1]) for row in data]
+    return all_tasks
 
 
 def show_completed_task_list() -> List[Task]:
     """Возвращает 10 последних завершенных задач"""
     cursor = db.get_cursor()
     cursor.execute(
-        "select id, task_name from task"
-        "order by created desc limit 10"
+        "SELECT id, task_name FROM task WHERE completed = 1 "
+        "ORDER BY created_time DESC LIMIT 10"
     )
     rows = cursor.fetchall()
     last_tasks = [Task(id=row[0], task_name=row[1]) for row in rows]
     return last_tasks
 
 
-def get_month_statistics():
-    """За последний месяц вы поставили n задач, из них выполнили m задач"""
-    pass
+def complete_task(row_id):
+    cursor = db.get_cursor()
+    cursor.execute(f"UPDATE task "
+                   f"SET completed = 1 "
+                   f"WHERE id = {row_id}")
+    db.connection.commit()
+
+
+def show_month_stat():
+    """Делаем 2 запроса в БД и возвращазем их для составления статистики."""
+    cursor = db.get_cursor()
+    cursor.execute("SELECT COUNT(*) FROM task WHERE created_time >= date('now', '-1 month');")
+    all_task_last_month = cursor.fetchall()
+    cursor.execute("SELECT COUNT(*) FROM task WHERE completed = 1 AND created_time >= date('now', '-1 month');")
+    completed_tasks_last_month = cursor.fetchall()
+    return all_task_last_month, completed_tasks_last_month
