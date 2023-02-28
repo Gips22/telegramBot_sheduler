@@ -17,7 +17,7 @@ def insert(table: str, column_values: Dict):
     connection.commit()
 
 
-def fetchall(table: str, columns: List[str]) -> List[Tuple]:
+def fetchall(table: str, columns: List[str]) -> List[Dict]:
     columns_joined = ', '.join(columns)
     cursor.execute(f"select {columns_joined} from {table}")
     rows = cursor.fetchall()
@@ -57,18 +57,3 @@ def check_db_exists():
 
 
 check_db_exists()
-
-# query_task = """
-#     insert into task(task_name, user_task) values
-#     ('clean home', 1),
-#     ('clean home2', 2),
-#     ('clean home3', 33);
-# """
-# try:
-#     connection.execute(query_task)
-# except Exception as ex:
-#     print(ex)
-# else:
-#     print("good")
-#
-# connection.commit()

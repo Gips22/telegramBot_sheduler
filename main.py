@@ -1,22 +1,26 @@
-from aiogram import types
-from bot import dp
-from aiogram import executor
+from aiogram import types, executor
 
+from bot import dp
 import sheduler
+
+from middlewares import AccessMiddleware
+from config import TELEGRAM_ACCESS_ID
+
+dp.middleware.setup(AccessMiddleware(TELEGRAM_ACCESS_ID))
 
 
 @dp.message_handler(commands=["start", "help"])
 async def send_welcome(message: types.Message):
     """Отправляет приветственное сообщение и помощь по боту"""
     await message.answer(
-        f"Привет, {message.from_user.username} c id {message.from_user.id}! Я бот-планировщик.\n"
+        f"Привет, {message.from_user.username} c id {message.from_user.id}! Я бот-планировщик.\n \n"
         "Напиши мне: \n \n"
-        "/add, чтобы добавить задачу. \n"
-        "+ и id задачи, чтобы завершить задачу по ее идентификатору. \n"
-        "/list, чтобы показать список актуальных задач. \n"
-        "/completed_list, чтобы показать список заверщенных задач. \n"
-        "- и id задачи, чтобы удалить задачу по ее идентификатору. \n"
-        "/del_all, удалить все задачи. \n"
+        "название задачи дату и время напоминания, в формате: 'Купить молоко 22.02.2024 11:00'\n\n"
+        "/list, чтобы показать список актуальных задач. \n \n"
+        "/completed_list, чтобы показать список заверщенных задач. \n \n"
+        "+ и id задачи, чтобы завершить задачу по ее идентификатору. \n \n"
+        "- и id задачи, чтобы удалить задачу по ее идентификатору. \n \n"
+        "/del_all, удалить все задачи. \n \n"
         "/month_stat, для просмотра статистики за месяц.")
 
 
@@ -65,13 +69,14 @@ async def del_task(message: types.Message):
 
 @dp.message_handler(commands=["del_all"])
 async def del_all_tasks(message: types.Message):
+    """Удаляет все задачи"""
     sheduler.delete_all_tasks()
     await message.answer("Все задачи успешно удалены. Жду новых ^^")
 
 
 @dp.message_handler(commands=["month_stat"])
 async def get_month_stat(message: types.Message):
-    """Выводит статистику сколько за последний месяц было поставлено задач, сколько из них выполнено"""
+    """Выводит статистику количества поставленных за последний месяц задач. Также пишет сколько из них выполнено"""
     all_task_last_month, completed_tasks_last_month = sheduler.show_month_stat()
     await message.answer(f"Количество задач, поставленных за последний месяц: {all_task_last_month[0][0]}. \n \n"
                          f"Из них выполнено: {completed_tasks_last_month[0][0]}.")
