@@ -1,3 +1,4 @@
+"""Конфиги, переменные окружения задаются тут."""
 import os
 
 from dotenv import load_dotenv

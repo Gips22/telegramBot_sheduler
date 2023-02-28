@@ -1,2 +1,0 @@
-class NotCorrectDateTime(Exception):
-    pass

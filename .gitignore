@@ -6,12 +6,12 @@
 __pycache__
 db.sqlite3
 .DS_Store
-.env
+
 .ruff_cache
 /venv
 ./venv
 debug.log
 tasks.db
-tasks.py
+src/tasks.py
 celerybeat-schedule
 celerybeat-schedule.db

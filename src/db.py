@@ -1,11 +1,13 @@
-from typing import Dict, Tuple, List
+"""Модуль для взаимодействия с БД"""
+from typing import Dict, List
 import sqlite3
 
-connection = sqlite3.connect("tasks.db")
+connection = sqlite3.connect("../tasks.db")
 cursor = connection.cursor()
 
 
 def insert(table: str, column_values: Dict):
+    """Операция вставки в БД"""
     columns = ', '.join(column_values.keys())
     values = [tuple(column_values.values())]
     placeholders = ', '.join('?' * len(column_values.keys()))
@@ -18,6 +20,7 @@ def insert(table: str, column_values: Dict):
 
 
 def fetchall(table: str, columns: List[str]) -> List[Dict]:
+    """Операция извлечения данных из БД"""
     columns_joined = ', '.join(columns)
     cursor.execute(f"select {columns_joined} from {table}")
     rows = cursor.fetchall()
@@ -31,6 +34,7 @@ def fetchall(table: str, columns: List[str]) -> List[Dict]:
 
 
 def delete(table: str, row_id: int) -> None:
+    """Операция удаления из БД"""
     row_id = int(row_id)
     cursor.execute(f"delete from {table} where id={row_id}")
     connection.commit()
@@ -40,13 +44,6 @@ def get_cursor():
     return cursor
 
 
-def _init_db():
-    with open("createdb.sql", "r") as f:
-        sql = f.read()
-        cursor.executescript(sql)
-        connection.commit()
-
-
 def check_db_exists():
     cursor.execute("select name from sqlite_master "
                    "where type='table' and name='task'")
@@ -54,6 +51,13 @@ def check_db_exists():
     if table_exists:
         return
     _init_db()
+
+
+def _init_db():
+    with open("createdb.sql", "r") as f:
+        sql = f.read()
+        cursor.executescript(sql)
+        connection.commit()
 
 
 check_db_exists()

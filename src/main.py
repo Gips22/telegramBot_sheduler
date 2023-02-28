@@ -1,8 +1,8 @@
+"""Сервер Telegram бота. Точка входа."""
 from aiogram import types, executor
 
-from bot import dp
 import sheduler
-
+from bot import dp
 from middlewares import AccessMiddleware
 from config import TELEGRAM_ACCESS_ID
 
