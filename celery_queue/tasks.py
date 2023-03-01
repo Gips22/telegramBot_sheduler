@@ -8,9 +8,9 @@ from celery import Celery
 from loguru import logger
 from celery.schedules import crontab
 
-import db
-from bot import bot
-from config import TELEGRAM_ACCESS_ID
+from src import db
+from src.bot import bot
+from src.config import TELEGRAM_ACCESS_ID
 
 logger.add("debug.log", format="{time} {level} {message}", level="DEBUG", rotation="10 MB")
 app_celery = Celery('tasks', broker='redis://127.0.0.1:6379/0', include=['tasks'])

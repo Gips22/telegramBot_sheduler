@@ -15,5 +15,10 @@
 
 
 
-cd src
-celery -A tasks worker -B --loglevel=debug
+
+Добавляем пакеты src и celery_queue системную переменную окружения PYTHONPATH, чтобы корректно работали импорты:
+export PYTHONPATH=$PYTHONPATH:/path_to_package/src
+export PYTHONPATH=$PYTHONPATH:/path_to_package/celery_queue
+
+
+celery -A celery_queue.tasks worker -B --loglevel=debug

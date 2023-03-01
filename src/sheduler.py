@@ -8,7 +8,7 @@ from loguru import logger
 from bot import bot
 import db
 from exeptions import NotCorrectDateTime
-from tasks import create_celery_task_send_message
+from celery_queue.tasks import create_celery_task_send_message
 
 logger.add("debug.log", format="{time} {level} {message}", level="DEBUG", rotation="10 MB")
 r = redis.Redis(host="127.0.0.1", port=6379)
