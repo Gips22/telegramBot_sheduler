@@ -12,6 +12,5 @@ db.sqlite3
 ./venv
 debug.log
 tasks.db
-src/tasks.py
 celerybeat-schedule
 celerybeat-schedule.db
