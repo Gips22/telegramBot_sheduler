@@ -56,7 +56,7 @@ async def send_overdue_notification_message(text, chat_id):
 app_celery.conf.beat_schedule = {
     'check_overdue_tasks': {
         'task': 'tasks.check_overdue_tasks',
-        'schedule': crontab(hour=16, minute=47),
+        'schedule': crontab(hour=12, minute=12),
         'args': (TELEGRAM_ACCESS_ID,)
     },
 }
